@@ -1,39 +1,21 @@
 using System;
 
-class Quadrilateral
+class Vector
 {
-    public (double X, double Y) A { get; private set; }
-    public (double X, double Y) B { get; private set; }
-    public (double X, double Y) C { get; private set; }
-    public (double X, double Y) D { get; private set; }
+    public double X { get; private set; }
+    public double Y { get; private set; }
 
-    public Quadrilateral((double X, double Y) a,
-                         (double X, double Y) b,
-                         (double X, double Y) c,
-                         (double X, double Y) d)
-    {
-        A = a;
-        B = b;
-        C = c;
-        D = d;
-    }
+    public double Length => Math.Sqrt(X * X + Y * Y);
 
-    private double Distance((double X, double Y) p1, (double X, double Y) p2)
+    public Vector(double x, double y)
     {
-        return Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
-    }
-
-    public double GetPerimeter()
-    {
-        return Distance(A, B) +
-               Distance(B, C) +
-               Distance(C, D) +
-               Distance(D, A);
+        X = x;
+        Y = y;
     }
 
     public override string ToString()
     {
-        return $"A({A.X}, {A.Y}), B({B.X}, {B.Y}), C({C.X}, {C.Y}), D({D.X}, {D.Y})";
+        return $"({X}, {Y}), Length = {Length:F3}";
     }
 }
 
@@ -41,49 +23,53 @@ class Program
 {
     static void Main()
     {
-        Console.Write("Введіть кількість чотирикутників n: ");
-        int n = int.Parse(Console.ReadLine());
+        Console.Write("Введіть кількість векторів n: ");
 
-        Quadrilateral[] quadrilaterals = new Quadrilateral[n];
+        if (!int.TryParse(Console.ReadLine(), out int n) || n <= 0)
+        {
+            Console.WriteLine("Помилка: введіть додатне ціле число.");
+            return;
+        }
+
+        Vector[] vectors = new Vector[n];
 
         for (int i = 0; i < n; i++)
         {
-            Console.WriteLine($"\nВведіть координати для чотирикутника №{i + 1}");
+            Console.WriteLine($"\nВведіть компоненти для вектора №{i + 1}:");
 
-            var a = ReadPoint("A");
-            var b = ReadPoint("B");
-            var c = ReadPoint("C");
-            var d = ReadPoint("D");
+            double x = ReadDouble("  X = ");
+            double y = ReadDouble("  Y = ");
 
-            quadrilaterals[i] = new Quadrilateral(a, b, c, d);
+            vectors[i] = new Vector(x, y);
         }
 
-        double maxPerimeter = quadrilaterals[0].GetPerimeter();
         int maxIndex = 0;
+        double maxLength = vectors[0].Length;
 
         for (int i = 1; i < n; i++)
         {
-            double perimeter = quadrilaterals[i].GetPerimeter();
-            if (perimeter > maxPerimeter)
+            if (vectors[i].Length > maxLength)
             {
-                maxPerimeter = perimeter;
+                maxLength = vectors[i].Length;
                 maxIndex = i;
             }
         }
 
-        Console.WriteLine("\nЧотирикутник з найбільшим периметром:");
-        Console.WriteLine(quadrilaterals[maxIndex]);
-        Console.WriteLine($"Периметр = {maxPerimeter:F2}");
+        Console.WriteLine("\nВектор з найбільшою довжиною:");
+        Console.WriteLine(vectors[maxIndex]);
     }
 
-    static (double X, double Y) ReadPoint(string name)
+    static double ReadDouble(string label)
     {
-        Console.Write($"  {name}.X = ");
-        double x = double.Parse(Console.ReadLine());
+        double value;
 
-        Console.Write($"  {name}.Y = ");
-        double y = double.Parse(Console.ReadLine());
+        while (true)
+        {
+            Console.Write(label);
+            if (double.TryParse(Console.ReadLine(), out value))
+                return value;
 
-        return (x, y);
+            Console.WriteLine(" Помилка: введіть число!");
+        }
     }
 }
