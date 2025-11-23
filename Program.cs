@@ -1,5 +1,44 @@
 using System;
 
+public class DirectionVector
+{
+    // Приватні поля
+    private double _x;
+    private double _y;
+
+    // Властивості
+    public double X
+    {
+        get => _x;
+        set => _x = value;
+    }
+
+    public double Y
+    {
+        get => _y;
+        set => _y = value;
+    }
+
+    // Конструктор
+    public DirectionVector(double x, double y)
+    {
+        _x = x;
+        _y = y;
+    }
+
+    // Довжина вектора (корінь)
+    public double Length => Math.Sqrt(_x * _x + _y * _y);
+
+    // Квадрат довжини для оптимізації порівняння
+    public double LengthSquared => _x * _x + _y * _y;
+
+    // Для красивого виводу
+    public override string ToString()
+    {
+        return $"({X}, {Y})";
+    }
+}
+
 class Program
 {
     static void Main()
@@ -12,7 +51,6 @@ class Program
             return;
         }
 
-        // Масив векторів — згідно з вимогою завдання
         DirectionVector[] vectors = new DirectionVector[n];
 
         for (int i = 0; i < n; i++)
@@ -21,41 +59,42 @@ class Program
 
             double x, y;
 
-            // X
+            // Ввід X
             while (true)
             {
                 Console.Write("  X = ");
                 if (double.TryParse(Console.ReadLine(), out x))
                     break;
 
-                Console.WriteLine("  Некоректне число, спробуйте ще.");
+                Console.WriteLine("  Некоректне число. Спробуйте ще раз.");
             }
 
-            // Y
+            // Ввід Y
             while (true)
             {
                 Console.Write("  Y = ");
                 if (double.TryParse(Console.ReadLine(), out y))
                     break;
 
-                Console.WriteLine("  Некоректне число, спробуйте ще.");
+                Console.WriteLine("  Некоректне число. Спробуйте ще раз.");
             }
 
             vectors[i] = new DirectionVector(x, y);
         }
 
-        // Пошук вектора з найбільшою довжиною
-        DirectionVector max = vectors[0];
+        // Пошук найдовшого вектора
+        DirectionVector maxVector = vectors[0];
 
         for (int i = 1; i < n; i++)
         {
-            if (vectors[i].LengthSquared > max.LengthSquared)
+            if (vectors[i].LengthSquared > maxVector.LengthSquared)
             {
-                max = vectors[i];
+                maxVector = vectors[i];
             }
         }
 
-        Console.WriteLine("\nНайдовший вектор: " + max);
-        Console.WriteLine($"Довжина: {max.Length:F3}");
+        // Вивід результату
+        Console.WriteLine("\nНайдовший вектор: " + maxVector);
+        Console.WriteLine($"Довжина: {maxVector.Length:F3}");
     }
 }
