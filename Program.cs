@@ -1,119 +1,89 @@
 using System;
 
-public class FractionalLinearFunction
+class Quadrilateral
 {
-    // Закриті поля (інкапсуляція)
-    private double a1, a0;
-    private double b1, b0;
+    public (double X, double Y) A { get; private set; }
+    public (double X, double Y) B { get; private set; }
+    public (double X, double Y) C { get; private set; }
+    public (double X, double Y) D { get; private set; }
 
-    // Конструктор
-    public FractionalLinearFunction(double a1, double a0, double b1, double b0)
+    public Quadrilateral((double X, double Y) a,
+                         (double X, double Y) b,
+                         (double X, double Y) c,
+                         (double X, double Y) d)
     {
-        SetCoefficients(a1, a0, b1, b0);
+        A = a;
+        B = b;
+        C = c;
+        D = d;
     }
 
-    // Метод завдання коефіцієнтів
-    public virtual void SetCoefficients(double a1, double a0, double b1, double b0)
+    private double Distance((double X, double Y) p1, (double X, double Y) p2)
     {
-        this.a1 = a1;
-        this.a0 = a0;
-        this.b1 = b1;
-        this.b0 = b0;
+        return Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
     }
 
-    // Метод виведення коефіцієнтів
-    public virtual void Print()
+    public double GetPerimeter()
     {
-        Console.WriteLine("Дробово-лінійна функція:");
-        Console.WriteLine($"  Чисельник:   {a1}·x + {a0}");
-        Console.WriteLine($"  Знаменник:   {b1}·x + {b0}");
+        return Distance(A, B) +
+               Distance(B, C) +
+               Distance(C, D) +
+               Distance(D, A);
     }
 
-    // Обчислення значення функції в точці x0
-    public virtual double Value(double x0)
+    public override string ToString()
     {
-        double numerator = a1 * x0 + a0;
-        double denominator = b1 * x0 + b0;
-        return numerator / denominator;
+        return $"A({A.X}, {A.Y}), B({B.X}, {B.Y}), C({C.X}, {C.Y}), D({D.X}, {D.Y})";
     }
 }
-
-// =====================================================================
-
-public class FractionFunction : FractionalLinearFunction
-{
-    private double a2, b2;
-
-    // Конструктор
-    public FractionFunction(double a2, double a1, double a0,
-                            double b2, double b1, double b0)
-        : base(a1, a0, b1, b0)
-    {
-        this.a2 = a2;
-        this.b2 = b2;
-    }
-
-    // Перевантажений метод завдання коефіцієнтів
-    public void SetCoefficients(double a2, double a1, double a0,
-                                double b2, double b1, double b0)
-    {
-        base.SetCoefficients(a1, a0, b1, b0);
-        this.a2 = a2;
-        this.b2 = b2;
-    }
-
-    // Перевизначений метод виведення
-    public override void Print()
-    {
-        Console.WriteLine("Дробова функція (квадрат/квадрат):");
-        Console.WriteLine($"  Чисельник:   {a2}·x² + {GetA1()}·x + {GetA0()}");
-        Console.WriteLine($"  Знаменник:   {b2}·x² + {GetB1()}·x + {GetB0()}");
-    }
-
-    // Метод доступу до захищених значень (інкапсуляція)
-    private double GetA1() => typeof(FractionalLinearFunction)
-        .GetField("a1", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-        .GetValue(this) as double? ?? 0;
-
-    private double GetA0() => typeof(FractionalLinearFunction)
-        .GetField("a0", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-        .GetValue(this) as double? ?? 0;
-
-    private double GetB1() => typeof(FractionalLinearFunction)
-        .GetField("b1", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-        .GetValue(this) as double? ?? 0;
-
-    private double GetB0() => typeof(FractionalLinearFunction)
-        .GetField("b0", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-        .GetValue(this) as double? ?? 0;
-
-    // Обчислення значення в точці
-    public override double Value(double x0)
-    {
-        double numerator = a2 * x0 * x0 + GetA1() * x0 + GetA0();
-        double denominator = b2 * x0 * x0 + GetB1() * x0 + GetB0();
-        return numerator / denominator;
-    }
-}
-
-// =====================================================================
 
 class Program
 {
     static void Main()
     {
-        Console.OutputEncoding = System.Text.Encoding.UTF8;
+        Console.Write("Введіть кількість чотирикутників n: ");
+        int n = int.Parse(Console.ReadLine());
 
-        // Дробово-лінійна функція
-        FractionalLinearFunction f1 = new FractionalLinearFunction(2, 5, 1, 3);
-        f1.Print();
-        Console.WriteLine("Значення при x0 = 2: " + f1.Value(2));
+        Quadrilateral[] quadrilaterals = new Quadrilateral[n];
 
-        Console.WriteLine();
+        for (int i = 0; i < n; i++)
+        {
+            Console.WriteLine($"\nВведіть координати для чотирикутника №{i + 1}");
 
-        // Дробова функція (квадрат/квадрат)
-        FractionFunction f2 = new FractionFunction(1, 2, 3, 4, 5, 6);
-        f2.Print();
-        Console.WriteLine("Значення при x0 = 2: " + f2.Value(2));
+            var a = ReadPoint("A");
+            var b = ReadPoint("B");
+            var c = ReadPoint("C");
+            var d = ReadPoint("D");
+
+            quadrilaterals[i] = new Quadrilateral(a, b, c, d);
+        }
+
+        double maxPerimeter = quadrilaterals[0].GetPerimeter();
+        int maxIndex = 0;
+
+        for (int i = 1; i < n; i++)
+        {
+            double perimeter = quadrilaterals[i].GetPerimeter();
+            if (perimeter > maxPerimeter)
+            {
+                maxPerimeter = perimeter;
+                maxIndex = i;
+            }
+        }
+
+        Console.WriteLine("\nЧотирикутник з найбільшим периметром:");
+        Console.WriteLine(quadrilaterals[maxIndex]);
+        Console.WriteLine($"Периметр = {maxPerimeter:F2}");
+    }
+
+    static (double X, double Y) ReadPoint(string name)
+    {
+        Console.Write($"  {name}.X = ");
+        double x = double.Parse(Console.ReadLine());
+
+        Console.Write($"  {name}.Y = ");
+        double y = double.Parse(Console.ReadLine());
+
+        return (x, y);
     }
 }
